@@ -70,7 +70,7 @@
     </GenFiles>
     <SignalListFile>Documentation\IOM_C_SIGNALS.txt</SignalListFile>
     <DestinationCompiler>MetrowerksHCS08CC</DestinationCompiler>
-    <ProjectModificationStamp>22</ProjectModificationStamp>
+    <ProjectModificationStamp>23</ProjectModificationStamp>
   </Options>
   <CpuID_4>
     <Generated>true</Generated>

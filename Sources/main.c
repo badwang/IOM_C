@@ -47,12 +47,17 @@ uint8_t UART_TXBuf[32]={0};
 uint8_t UART_RXBuf[32]={0};
 uint8_t TXData[20]={0};
 
+uint8_t Din_Val[6]={0};
+uint8_t Din_Last_Val[6]={0};
+
 uint8_t Self_Short_Addr[2]={0};
 uint8_t MAC_Addr[8]={0};
 uint8_t Device_Num[2]={0};
 uint8_t UT_SN=0;
+uint8_t Compare_Flag=0;
 
 uint16_t MainCycle=0;
+uint8_t CheckTime=0;
 
 const uint8_t Read_Short_Addr[7]={0xFC, 0x00, 0x91, 0x04, 0xC4, 0xD4, 0x29};
 const uint8_t Read_Dev_Command[7]={0xFC, 0x00, 0x91, 0x6A, 0xBA, 0xDA, 0x8B};
@@ -65,7 +70,8 @@ uint8_t Get_Mac(void);
 uint8_t Get_Short_Addr(void);
 uint8_t RX_Poll(void);
 
-#define Report_Cycle 500
+#define Report_Cycle 500					//This defines periodical report interval. 500x7ms=3.5s.
+#define Check_Interval 4					//This defines input change detection interval. 4x7ms=28ms.
 
 void main(void)
 {
@@ -134,22 +140,61 @@ void main(void)
   
   for(;;){
 	  
+	  CheckTime=0;
 	  while(RX_Frame()!=ERR_OK){
 		  
 		  MainCycle++;
+
+		  CheckTime++;
+		  
+		  if(CheckTime==Check_Interval){
+			  CheckTime=0;
+			  Compare_Flag=0;
+			  
+			  for(i=0;i<4;i++){
+				  Din_Val[i]=Din_GetBit(i);						//Get Din.
+			  }
+			  for(i=0;i<2;i++){
+				  Din_Val[i+4]=Din2_GetBit(i);					//Get Din2.
+			  }
+			  
+			  for(i=0;i<6;i++){
+				  if(Din_Val[i]!=Din_Last_Val[i]){
+					  Compare_Flag=1;
+					  break;
+				  }
+			  }
+			  
+			  if(Compare_Flag==1){
+				  // Value changed, need to report new value.
+				  for(i=0;i<6;i++){
+					  TXData[i]=Din_Val[i];
+					  Din_Last_Val[i]=Din_Val[i];
+				  }
+				  for(i=0;i<2;i++){
+					  TXData[i+6]=Dout_GetBit(i);					//Get Dout.
+				  }
+				  TX_Report(TXData, 8);								//Send report frame to UART.
+			  }
+		  }
+		  
+		  
 		  if(MainCycle > Report_Cycle){								//Check if Report cycle is reached.
 			  MainCycle=0;
+			  CheckTime=0;
 			  for(i=0;i<4;i++){
 				  TXData[i]=Din_GetBit(i);						//Get Din.
+				  Din_Last_Val[i]=TXData[i];					//Save Din to last value.
 			  }
 			  for(i=0;i<2;i++){
 				  TXData[i+4]=Din2_GetBit(i);					//Get Din2.
+				  Din_Last_Val[i+4]=TXData[i+4];				//Save Din to last value.
 			  }
 			  for(i=0;i<2;i++){
 				  TXData[i+6]=Dout_GetBit(i);					//Get Dout.
 			  }
 			  TX_Report(TXData, 8);								//Send report frame to UART.
-			  (void) AS1_ClearRxBuf();							//Clear RX buffer.
+//			  (void) AS1_ClearRxBuf();							//Clear RX buffer.
 		  }
 	  }
 	  //Valid incoming frame got.
@@ -157,9 +202,11 @@ void main(void)
 		  //CMD 0x03
 		  for(i=0;i<4;i++){
 			  TXData[i]=Din_GetBit(i);						//Get Din.
+			  Din_Last_Val[i]=TXData[i];					//Save Din to last value.
 		  }
 		  for(i=0;i<2;i++){
 			  TXData[i+4]=Din2_GetBit(i);					//Get Din2.
+			  Din_Last_Val[i+4]=TXData[i+4];				//Save Din to last value.
 		  }
 		  for(i=0;i<2;i++){
 			  TXData[i+6]=Dout_GetBit(i);					//Get Dout.
@@ -172,9 +219,11 @@ void main(void)
 		  }
 		  for(i=0;i<4;i++){
 			  TXData[i]=Din_GetBit(i);						//Get Din.
+			  Din_Last_Val[i]=TXData[i];					//Save Din to last value.
 		  }
 		  for(i=0;i<2;i++){
 			  TXData[i+4]=Din2_GetBit(i);					//Get Din2.
+			  Din_Last_Val[i+4]=TXData[i+4];				//Save Din to last value.
 		  }
 		  for(i=0;i<2;i++){
 			  TXData[i+6]=Dout_GetBit(i);					//Get Dout.
