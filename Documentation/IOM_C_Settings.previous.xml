@@ -406,22 +406,66 @@ push-pull
       <EmptySection_DummyValue />
     </Events>
   </Bean>
-  <Bean name="Dout" type="BitsIO">
+  <Bean name="Din2" type="BitsIO">
     <Enabled v="Y" />
     <Properties>
-      <Component_name v="Dout" />
+      <Component_name v="Din2" />
       <Port v="PTB" />
-      <list name="Pins" v="4">
+      <list name="Pins" v="2">
         <group name="Pin0">
           <Pin v="PTB2_KBI0P6_ADP6" />
         </group>
         <group name="Pin1">
           <Pin v="PTB3_KBI0P7_FTM1CLK_ADP7" />
         </group>
-        <group name="Pin2">
+      </list>
+      <Pull_resistor sel_value="no pull resistor">
+        
+autoselected pull
+
+        <EmptySection_DummyValue />
+      </Pull_resistor>
+      <Open_drain sel_value="The settings is irrelevant for input direction">
+        
+push-pull
+
+        <EmptySection_DummyValue />
+      </Open_drain>
+      <Direction v="Input" />
+      <group name="Initialization">
+        <Init__direction v="Input" />
+        <Init__value v="0" />
+      </group>
+      <Safe_mode v="yes" />
+      <Optimization_for v="speed" />
+    </Properties>
+    <Methods>
+      <GetDir v="generate code" />
+      <SetDir v="don&amp;apos;t generate code" />
+      <SetInput v="don&amp;apos;t generate code" />
+      <SetOutput v="don&amp;apos;t generate code" />
+      <GetVal v="generate code" />
+      <PutVal v="don&amp;apos;t generate code" />
+      <GetBit v="generate code" />
+      <PutBit v="don&amp;apos;t generate code" />
+      <SetBit v="don&amp;apos;t generate code" />
+      <ClrBit v="don&amp;apos;t generate code" />
+      <NegBit v="don&amp;apos;t generate code" />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
+  <Bean name="Dout" type="BitsIO">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="Dout" />
+      <Port v="PTB" />
+      <list name="Pins" v="2">
+        <group name="Pin0">
           <Pin v="PTB4_FTM1CH0" />
         </group>
-        <group name="Pin3">
+        <group name="Pin1">
           <Pin v="PTB5_FTM1CH1" />
         </group>
       </list>
